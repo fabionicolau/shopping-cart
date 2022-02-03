@@ -84,6 +84,10 @@ button.addEventListener('click', clearCart);
 
 function generateLocalStorage() {
   cartList.innerHTML = getSavedCartItems();
+  const tagLi = document.getElementsByTagName('li');
+  Array.from(tagLi).forEach((element) => {
+    element.addEventListener('click', cartItemClickListener);
+  });
 }
 
 window.onload = async () => {
