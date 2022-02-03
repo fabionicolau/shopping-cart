@@ -1,5 +1,5 @@
 const cartList = document.querySelector('.cart__items');
-const list = document.querySelector('.items');
+const listItems = document.querySelector('.items');
 
 function createProductImageElement(imageSource) {
   const img = document.createElement('img');
@@ -28,11 +28,16 @@ function createProductItemElement({ sku, name, image }) {
 }
 
 async function addProductList() {
+  const text = document.createElement('p');
+  text.innerText = 'carregando...';
+  text.classList.add('loading');
+  listItems.appendChild(text);
   const data = await fetchProducts('computador');
   data.results.forEach(({ id, title, thumbnail }) => {
     const addList = createProductItemElement({ sku: id, name: title, image: thumbnail });
-    list.appendChild(addList);
+    listItems.appendChild(addList);
   });
+  text.remove();
 }
 
 function getSkuFromProductItem(item) {
