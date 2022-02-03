@@ -1,4 +1,5 @@
 const cartList = document.querySelector('.cart__items');
+const list = document.querySelector('.items');
 
 function createProductImageElement(imageSource) {
   const img = document.createElement('img');
@@ -28,7 +29,6 @@ function createProductItemElement({ sku, name, image }) {
 
 async function addProductList() {
   const data = await fetchProducts('computador');
-  const list = document.querySelector('.items');
   data.results.forEach(({ id, title, thumbnail }) => {
     const addList = createProductItemElement({ sku: id, name: title, image: thumbnail });
     list.appendChild(addList);
@@ -41,6 +41,7 @@ function getSkuFromProductItem(item) {
 
 function cartItemClickListener(event) {
   event.target.remove();
+  saveCartItems(cartList.innerHTML);
 }
 
 function createCartItemElement({ sku, name, salePrice }) {
@@ -57,6 +58,7 @@ async function addCartList(event) {
   const { id, title, price } = data;
   const addList = createCartItemElement({ sku: id, name: title, salePrice: price });
   cartList.appendChild(addList);
+  saveCartItems(cartList.innerHTML);
 }
 
 function buttonSetup() {
@@ -69,12 +71,18 @@ function buttonSetup() {
 function clearCart() {
   while (cartList.lastElementChild) {
     cartList.removeChild(cartList.lastElementChild);
+    saveCartItems(cartList.innerHTML);
   }
 }
 const button = document.querySelector('.empty-cart');
 button.addEventListener('click', clearCart);
 
+function generateLocalStorage() {
+  cartList.innerHTML = getSavedCartItems();
+}
+
 window.onload = async () => {
   await addProductList();
   buttonSetup();
+  generateLocalStorage();
 };
