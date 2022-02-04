@@ -1,5 +1,7 @@
-const cartList = document.querySelector('.cart__items');
+const cartOrderedList = document.querySelector('.cart__items');
 const listItems = document.querySelector('.items');
+const totalPrice = document.querySelector('.total-price');
+const cartList = document.getElementsByClassName('cart__item');
 
 function createProductImageElement(imageSource) {
   const img = document.createElement('img');
@@ -28,9 +30,7 @@ function createProductItemElement({ sku, name, image }) {
 }
 
 async function addProductList() {
-  const text = document.createElement('p');
-  text.innerText = 'carregando...';
-  text.classList.add('loading');
+  const text = createCustomElement('span', 'loading', 'carregando...');
   listItems.appendChild(text);
   const data = await fetchProducts('computador');
   data.results.forEach(({ id, title, thumbnail }) => {
@@ -44,9 +44,21 @@ function getSkuFromProductItem(item) {
   return item.querySelector('span.item__sku').innerText;
 }
 
+function getSum() {
+  let sum = 0;
+  Array.from(cartList).forEach((element) => {
+    let string = element.innerText;
+    string = string.split('$');
+    const prices = parseFloat(string[1]);
+    sum += prices;
+  });
+  totalPrice.innerText = sum;
+}
+
 function cartItemClickListener(event) {
   event.target.remove();
-  saveCartItems(cartList.innerHTML);
+  getSum();
+  saveCartItems(cartOrderedList.innerHTML);
 }
 
 function createCartItemElement({ sku, name, salePrice }) {
@@ -62,8 +74,9 @@ async function addCartList(event) {
   const data = await fetchItem(productId);
   const { id, title, price } = data;
   const addList = createCartItemElement({ sku: id, name: title, salePrice: price });
-  cartList.appendChild(addList);
-  saveCartItems(cartList.innerHTML);
+  cartOrderedList.appendChild(addList);
+  getSum();
+  saveCartItems(cartOrderedList.innerHTML);
 }
 
 function buttonSetup() {
@@ -74,20 +87,22 @@ function buttonSetup() {
 }
 
 function clearCart() {
-  while (cartList.lastElementChild) {
-    cartList.removeChild(cartList.lastElementChild);
-    saveCartItems(cartList.innerHTML);
+  while (cartOrderedList.lastElementChild) {
+    cartOrderedList.removeChild(cartOrderedList.lastElementChild);
+    getSum();
+    saveCartItems(cartOrderedList.innerHTML);
   }
 }
 const button = document.querySelector('.empty-cart');
 button.addEventListener('click', clearCart);
 
 function generateLocalStorage() {
-  cartList.innerHTML = getSavedCartItems();
-  const tagLi = document.getElementsByTagName('li');
-  Array.from(tagLi).forEach((element) => {
+  cartOrderedList.innerHTML = getSavedCartItems();
+  Array.from(cartList).forEach((element) => {
     element.addEventListener('click', cartItemClickListener);
+    getSum();
   });
+  return cartOrderedList.innerHTML;
 }
 
 window.onload = async () => {
